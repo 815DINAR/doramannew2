@@ -10,7 +10,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   
-  <link rel="stylesheet" href="styles49.css">
+  <link rel="stylesheet" href="styles100.css">
   <link rel="icon" type="image/x-icon" href="Group-589.ico">
   
   <!-- Предотвращаем зум и другие iOS поведения -->
@@ -44,13 +44,19 @@
 </head>
 <body>
   <div class="app">
-    <!-- Экран авторизации с картинкой -->
-    <div id="loadingIndicator" class="loading-indicator">
-      <!-- ЗДЕСЬ МЕНЯЕТСЯ КАРТИНКА ЗАГРУЗКИ -->
-      <!-- Замените src на путь к вашей картинке -->
-      <img src="images/loading-screen.jpg" alt="Loading" class="loading-image">
+   
+
+    <!-- Кнопка debug и консоль - теперь вне loading-indicator -->
+    <button id="debugButton" class="debug-button">DEBUG</button>
+    <div id="debugConsole" class="debug-console">
+        <div class="debug-header">
+            <span>Debug Console</span>
+            <button id="closeDebug" class="close-debug">×</button>
+        </div>
+        <div id="debugLogs" class="debug-logs"></div>
+        <button id="clearLogs" class="clear-logs">Очистить</button>
     </div>
-    
+
     <!-- Основной контейнер видео (скрыт по умолчанию) -->
     <div class="video-container" id="videoContainer" style="display: none;">
     
@@ -143,6 +149,6 @@
   
   <!-- Подключаем скрипты -->
   <script src="telegram-auth.js"></script>
-  <script src="script36.js"></script>
+  <script src="script100.js"></script>
 </body>
 </html>
