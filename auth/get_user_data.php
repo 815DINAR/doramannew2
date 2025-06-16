@@ -1,5 +1,5 @@
 <?php
-// get_user_data.php v1.0 - Получение данных пользователя
+// get_user_data.php v1.1 - Получение данных пользователя с поддержкой прогресса просмотра
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
@@ -42,6 +42,11 @@ try {
                 'favorites' => [],
                 'likes' => [],
                 'dislikes' => [],
+                'watchedVideos' => [],
+                'lastVideoId' => null,
+                'currentSessionOrder' => [],
+                'watchProgress' => [],
+                'totalCycles' => 0,
                 'sessions_count' => 0,
                 'total_time' => 0
             ]
@@ -68,7 +73,7 @@ try {
         }
     }
     
-    // Формируем ответ
+    // Формируем ответ с новыми полями
     $responseData = [
         'user_id' => $userData['user_id'],
         'username' => $userData['username'],
@@ -77,6 +82,11 @@ try {
         'favorites' => $userData['favorites'],
         'likes' => $userData['likes'],
         'dislikes' => $userData['dislikes'],
+        'watchedVideos' => $userData['watchedVideos'] ?? [],
+        'lastVideoId' => $userData['lastVideoId'] ?? null,
+        'currentSessionOrder' => $userData['currentSessionOrder'] ?? [],
+        'watchProgress' => $userData['watchProgress'] ?? [],
+        'totalCycles' => $userData['totalCycles'] ?? 0,
         'sessions_count' => $sessionsCount,
         'active_sessions' => $activeSessions,
         'total_time' => $totalTime,
