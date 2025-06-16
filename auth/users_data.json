@@ -7,7 +7,7 @@
         "language_code": "ru",
         "is_premium": true,
         "first_login": "2025-06-15 02:13:22",
-        "last_login": "2025-06-15 22:20:20",
+        "last_login": "2025-06-16 10:28:04",
         "sessions": [
             {
                 "session_id": "b3761cb3c0ccabe7d10e771116b994cc",
@@ -120,6 +120,76 @@
                 "logout_time": null,
                 "duration_seconds": 30,
                 "last_activity": "2025-06-15T19:20:50.905Z"
+            },
+            {
+                "session_id": "b06e0c84bd1c2a55939712106d02368e",
+                "login_time": "2025-06-15 22:27:52",
+                "logout_time": null,
+                "duration_seconds": 646,
+                "last_activity": "2025-06-15T19:38:38.518Z"
+            },
+            {
+                "session_id": "b5773c42bfeb65893359e7a9a8d5ad36",
+                "login_time": "2025-06-15 22:39:09",
+                "logout_time": null,
+                "duration_seconds": 424,
+                "last_activity": "2025-06-15T19:46:13.574Z"
+            },
+            {
+                "session_id": "8401464d9866f6fc48739a661266a152",
+                "login_time": "2025-06-15 23:22:38",
+                "logout_time": null,
+                "duration_seconds": 109,
+                "last_activity": "2025-06-15T20:24:27.948Z"
+            },
+            {
+                "session_id": "d3a8647a30adda6e66920ac99ecf7235",
+                "login_time": "2025-06-15 23:34:36",
+                "logout_time": null,
+                "duration_seconds": 10,
+                "last_activity": "2025-06-15T20:34:46.690Z"
+            },
+            {
+                "session_id": "ae060d91c82a9e21bd530f2c5cd69202",
+                "login_time": "2025-06-15 23:34:57",
+                "logout_time": null,
+                "duration_seconds": 20,
+                "last_activity": "2025-06-15T20:35:17.347Z"
+            },
+            {
+                "session_id": "e506b4a1eec5deb166d179b6798cccc8",
+                "login_time": "2025-06-16 00:01:36",
+                "logout_time": null,
+                "duration_seconds": 10,
+                "last_activity": "2025-06-15T21:01:46.287Z"
+            },
+            {
+                "session_id": "f4a59512995013b560202460e51f4f3f",
+                "login_time": "2025-06-16 00:01:52",
+                "logout_time": null,
+                "duration_seconds": 19,
+                "last_activity": "2025-06-15T21:02:11.613Z"
+            },
+            {
+                "session_id": "4cd7cfd44533d86f160a37ea189cac3f",
+                "login_time": "2025-06-16 09:27:05",
+                "logout_time": null,
+                "duration_seconds": 0,
+                "last_activity": "2025-06-16 09:27:05"
+            },
+            {
+                "session_id": "4976e882a58ae5f9afaa58cff9de4671",
+                "login_time": "2025-06-16 09:35:32",
+                "logout_time": null,
+                "duration_seconds": 866,
+                "last_activity": "2025-06-16T06:49:58.203Z"
+            },
+            {
+                "session_id": "ce823493741657e952cd22837982e882",
+                "login_time": "2025-06-16 10:28:04",
+                "logout_time": null,
+                "duration_seconds": 0,
+                "last_activity": "2025-06-16 10:28:04"
             }
         ],
         "favorites": [
@@ -131,7 +201,7 @@
         ],
         "dislikes": [],
         "last_modified": "2025-06-15 02:53:26",
-        "last_activity": "2025-06-15T19:20:50.905Z"
+        "last_activity": "2025-06-16T06:49:58.203Z"
     },
     "7927946368": {
         "user_id": "7927946368",
@@ -141,7 +211,7 @@
         "language_code": "ru",
         "is_premium": false,
         "first_login": "2025-06-15 02:14:30",
-        "last_login": "2025-06-15 02:41:00",
+        "last_login": "2025-06-15 23:35:47",
         "sessions": [
             {
                 "session_id": "bbd9f61f2663d273dfb6f341dea5a2d8",
@@ -156,6 +226,48 @@
                 "logout_time": null,
                 "duration_seconds": 29,
                 "last_activity": "2025-06-14T23:41:29.864Z"
+            },
+            {
+                "session_id": "e0714d8dac339bf1f6e36ad768da3972",
+                "login_time": "2025-06-15 22:39:26",
+                "logout_time": null,
+                "duration_seconds": 10,
+                "last_activity": "2025-06-15T19:39:36.117Z"
+            },
+            {
+                "session_id": "f85126b8657ad80843527596062a393a",
+                "login_time": "2025-06-15 22:39:44",
+                "logout_time": null,
+                "duration_seconds": 293,
+                "last_activity": "2025-06-15T19:44:37.505Z"
+            },
+            {
+                "session_id": "8fdece42893518a0d055421763a9fea8",
+                "login_time": "2025-06-15 22:51:44",
+                "logout_time": null,
+                "duration_seconds": 80,
+                "last_activity": "2025-06-15T19:53:04.306Z"
+            },
+            {
+                "session_id": "55f2982f7c1a4d00dd2ca848f7e5edb3",
+                "login_time": "2025-06-15 22:53:11",
+                "logout_time": null,
+                "duration_seconds": 129,
+                "last_activity": "2025-06-15T19:55:20.577Z"
+            },
+            {
+                "session_id": "abf908cee601437db40d0291eec5291d",
+                "login_time": "2025-06-15 23:35:31",
+                "logout_time": null,
+                "duration_seconds": 0,
+                "last_activity": "2025-06-15 23:35:31"
+            },
+            {
+                "session_id": "547faa842e18e96da572876f27ab8852",
+                "login_time": "2025-06-15 23:35:47",
+                "logout_time": null,
+                "duration_seconds": 20,
+                "last_activity": "2025-06-15T20:36:07.212Z"
             }
         ],
         "favorites": [
@@ -165,7 +277,7 @@
         "likes": [],
         "dislikes": [],
         "last_modified": "2025-06-15 02:41:16",
-        "last_activity": "2025-06-14T23:41:29.864Z"
+        "last_activity": "2025-06-15T20:36:07.212Z"
     },
     "7155290763": {
         "user_id": "7155290763",
@@ -175,7 +287,7 @@
         "language_code": "ru",
         "is_premium": false,
         "first_login": "2025-06-15 02:49:41",
-        "last_login": "2025-06-15 02:49:41",
+        "last_login": "2025-06-15 22:59:44",
         "sessions": [
             {
                 "session_id": "10d77d44b280b1ac4682323501e56ec4",
@@ -183,6 +295,48 @@
                 "logout_time": null,
                 "duration_seconds": 20,
                 "last_activity": "2025-06-14T23:50:01.857Z"
+            },
+            {
+                "session_id": "b7be0b3abb9cbdb8a87c86e9ec386972",
+                "login_time": "2025-06-15 22:55:27",
+                "logout_time": null,
+                "duration_seconds": 10,
+                "last_activity": "2025-06-15T19:55:37.152Z"
+            },
+            {
+                "session_id": "558574a77efea4549385f02d88528523",
+                "login_time": "2025-06-15 22:55:46",
+                "logout_time": null,
+                "duration_seconds": 90,
+                "last_activity": "2025-06-15T19:57:16.766Z"
+            },
+            {
+                "session_id": "44931af16bb340622855b4e3ca625da3",
+                "login_time": "2025-06-15 22:57:20",
+                "logout_time": null,
+                "duration_seconds": 90,
+                "last_activity": "2025-06-15T19:58:50.073Z"
+            },
+            {
+                "session_id": "07713c7f90dc582a439734d2ba32745f",
+                "login_time": "2025-06-15 22:58:54",
+                "logout_time": null,
+                "duration_seconds": 10,
+                "last_activity": "2025-06-15T19:59:04.255Z"
+            },
+            {
+                "session_id": "31f272ba6a2f97ce9a7e00626f0b2e09",
+                "login_time": "2025-06-15 22:59:13",
+                "logout_time": null,
+                "duration_seconds": 20,
+                "last_activity": "2025-06-15T19:59:33.509Z"
+            },
+            {
+                "session_id": "2ddb33a14e07b2a9a00d6d4d357ca5b6",
+                "login_time": "2025-06-15 22:59:44",
+                "logout_time": null,
+                "duration_seconds": 250,
+                "last_activity": "2025-06-15T20:03:54.646Z"
             }
         ],
         "favorites": [
@@ -190,8 +344,8 @@
         ],
         "likes": [],
         "dislikes": [],
-        "last_activity": "2025-06-14T23:50:01.857Z",
-        "last_modified": "2025-06-15 02:50:03"
+        "last_activity": "2025-06-15T20:03:54.646Z",
+        "last_modified": "2025-06-15 23:03:54"
     },
     "590563384": {
         "user_id": "590563384",
