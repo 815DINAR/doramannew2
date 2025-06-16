@@ -1,4 +1,4 @@
-// telegram-auth.js v3.2 - Модуль авторизации с настраиваемым временем загрузки
+// telegram-auth.js v3.3 - Модуль авторизации с поддержкой прогресса просмотра
 
 // НАСТРОЙКА ВРЕМЕНИ ПОКАЗА ЭКРАНА ЗАГРУЗКИ (в миллисекундах)
 // Измените это значение для изменения времени показа splash screen
@@ -296,6 +296,140 @@ class TelegramAuth {
         }
     }
 
+    // Добавление видео в просмотренные
+    async addWatchedVideo(videoId, duration = 5) {
+        if (!this.user) return false;
+
+        try {
+            const response = await fetch('auth/update_watch_progress.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_id: this.user.id,
+                    action: 'add_watched',
+                    video_id: videoId,
+                    duration: duration
+                })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                console.log('✅ Видео добавлено в просмотренные:', videoId);
+            }
+            return result.success;
+        } catch (error) {
+            console.error('❌ Ошибка добавления в просмотренные:', error);
+            return false;
+        }
+    }
+
+    // Обновление последнего просмотренного видео
+    async updateLastVideo(videoId) {
+        if (!this.user) return false;
+
+        try {
+            const response = await fetch('auth/update_watch_progress.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_id: this.user.id,
+                    action: 'update_last_video',
+                    video_id: videoId
+                })
+            });
+
+            const result = await response.json();
+            return result.success;
+        } catch (error) {
+            console.error('❌ Ошибка обновления последнего видео:', error);
+            return false;
+        }
+    }
+
+    // Сохранение порядка текущей сессии
+    async saveSessionOrder(order) {
+        if (!this.user) return false;
+
+        try {
+            const response = await fetch('auth/update_watch_progress.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_id: this.user.id,
+                    action: 'save_session_order',
+                    order: order
+                })
+            });
+
+            const result = await response.json();
+            return result.success;
+        } catch (error) {
+            console.error('❌ Ошибка сохранения порядка сессии:', error);
+            return false;
+        }
+    }
+
+    // Сброс прогресса просмотра
+    async resetWatchProgress() {
+        if (!this.user) return false;
+
+        try {
+            const response = await fetch('auth/update_watch_progress.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_id: this.user.id,
+                    action: 'reset_progress'
+                })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                console.log('🔄 Прогресс просмотра сброшен');
+            }
+            return result.success;
+        } catch (error) {
+            console.error('❌ Ошибка сброса прогресса:', error);
+            return false;
+        }
+    }
+
+    // Очистка удаленных видео из прогресса
+    async cleanDeletedVideos(existingVideos) {
+        if (!this.user) return false;
+
+        try {
+            const response = await fetch('auth/update_watch_progress.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_id: this.user.id,
+                    action: 'clean_deleted_videos',
+                    existing_videos: existingVideos
+                })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                console.log('🧹 Удаленные видео очищены из прогресса');
+            }
+            return result.success;
+        } catch (error) {
+            console.error('❌ Ошибка очистки удаленных видео:', error);
+            return false;
+        }
+    }
+
     // Обновление UI после авторизации
     updateUI() {
         const loadingScreen = document.querySelector('.loading-screen');
@@ -406,4 +540,4 @@ class TelegramAuth {
 // Создаем глобальный экземпляр
 window.telegramAuth = new TelegramAuth();
 
-console.log('✅ Модуль telegram-auth.js v3.2 загружен');
+console.log('✅ Модуль telegram-auth.js v3.3 загружен');

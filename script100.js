@@ -1,4 +1,4 @@
-// script36.js v6.4 - Интегрирована новая система авторизации
+// script100.js v7.0 - Добавлена система отслеживания просмотра видео
 document.addEventListener('DOMContentLoaded', async () => {
  
  // Debug система - перехват всех console методов
@@ -146,7 +146,7 @@ const debugLogger = new DebugLogger();
 // Делаем debugLogger глобально доступным
 window.debugLogger = debugLogger;
 
-  console.log('🚀 Запуск приложения DoramaShorts v6.4...');
+  console.log('🚀 Запуск приложения DoramaShorts v7.0...');
   
   // Сначала проверяем авторизацию
   const authSuccess = await window.telegramAuth.init();
@@ -196,12 +196,25 @@ window.debugLogger = debugLogger;
   let userLikes = userData?.likes || [];
   let userDislikes = userData?.dislikes || [];
   let currentTab = 'main';
+  
+  // Новые переменные для отслеживания просмотра
+  let watchedVideosSet = new Set(userData?.watchedVideos || []); // Set для O(1) поиска
+  let currentSessionOrder = userData?.currentSessionOrder || []; // Сохраненный порядок сессии
+  let watchTimer = null;
+  let watchedSeconds = 0;
+  const WATCH_THRESHOLD = 5; // 5 секунд для просмотра
+  
+  // Переменные для batch обновления
+  let lastVideoUpdateTimer = null;
+  let sessionOrderUpdateTimer = null;
 
   console.log('🚀 Начинаем инициализацию приложения...');
   console.log('📊 Начальное состояние пользователя:', {
     favorites: userFavorites.length,
     likes: userLikes.length,
-    dislikes: userDislikes.length
+    dislikes: userDislikes.length,
+    watched: watchedVideosSet.size,
+    sessionOrder: currentSessionOrder.length
   });
   
   // Функция переключения вкладок
@@ -481,15 +494,131 @@ window.debugLogger = debugLogger;
     button.addEventListener('contextmenu', (e) => e.preventDefault());
   }
   
-  // Функция перемешивания массива индексов
-  function shuffleVideos() {
-    videoOrder = videos.map((_, index) => index);
+  // НОВАЯ функция перемешивания только непросмотренных видео
+  function shuffleUnwatchedVideos() {
+    // Находим индексы непросмотренных видео
+    const unwatchedIndices = [];
+    
+    videos.forEach((video, index) => {
+      // O(1) проверка благодаря Set
+      if (!watchedVideosSet.has(video.filename)) {
+        unwatchedIndices.push(index);
+      }
+    });
+    
+    console.log(`📊 Статистика: ${watchedVideosSet.size} просмотрено, ${unwatchedIndices.length} осталось`);
+    
+    // Если все видео просмотрены - сбрасываем прогресс
+    if (unwatchedIndices.length === 0) {
+      console.log('🔄 Все видео просмотрены, начинаем новый круг');
+      watchedVideosSet.clear();
+      currentSessionOrder = [];
+      
+      // Сбрасываем на сервере
+      window.telegramAuth.resetWatchProgress();
+      
+      // Теперь все видео снова непросмотренные
+      unwatchedIndices.push(...videos.map((_, i) => i));
+    }
+    
+    // Перемешиваем только непросмотренные
+    videoOrder = [...unwatchedIndices];
     for (let i = videoOrder.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [videoOrder[i], videoOrder[j]] = [videoOrder[j], videoOrder[i]];
     }
+    
     currentOrderIndex = 0;
-    console.log('🔀 Видео перемешаны, порядок:', videoOrder);
+    
+    // Сохраняем файлы видео в текущем порядке
+    currentSessionOrder = videoOrder.map(idx => videos[idx].filename);
+    
+    // Batch сохранение порядка сессии
+    saveSessionOrderBatch();
+    
+    console.log('🔀 Видео перемешаны, новый порядок:', videoOrder.length);
+  }
+
+  // НОВАЯ функция batch сохранения порядка сессии
+  function saveSessionOrderBatch() {
+    // Отменяем предыдущий таймер если есть
+    if (sessionOrderUpdateTimer) {
+      clearTimeout(sessionOrderUpdateTimer);
+    }
+    
+    // Устанавливаем новый таймер на 2 секунды
+    sessionOrderUpdateTimer = setTimeout(() => {
+      window.telegramAuth.saveSessionOrder(currentSessionOrder);
+      console.log('💾 Порядок сессии сохранен');
+    }, 2000);
+  }
+
+  // НОВАЯ функция batch обновления последнего видео
+  function updateLastVideoBatch(videoId) {
+    // Отменяем предыдущий таймер если есть
+    if (lastVideoUpdateTimer) {
+      clearTimeout(lastVideoUpdateTimer);
+    }
+    
+    // Устанавливаем новый таймер на 10 секунд
+    lastVideoUpdateTimer = setTimeout(() => {
+      window.telegramAuth.updateLastVideo(videoId);
+      console.log('💾 Последнее видео обновлено:', videoId);
+    }, 10000);
+  }
+
+  // НОВАЯ функция для остановки таймера просмотра
+  function resetWatchTimer() {
+    if (watchTimer) {
+      clearInterval(watchTimer);
+      watchTimer = null;
+    }
+    watchedSeconds = 0;
+  }
+
+  // НОВАЯ функция отслеживания времени просмотра
+  function startWatchTracking(filename) {
+    resetWatchTimer();
+    
+    // Проверяем, не просмотрено ли уже
+    if (watchedVideosSet.has(filename)) {
+      console.log('⏭️ Видео уже просмотрено:', filename);
+      return;
+    }
+    
+    console.log('⏱️ Начинаем отслеживание просмотра:', filename);
+    
+    watchTimer = setInterval(() => {
+      if (!videoPlayer.paused && currentTab === 'main') {
+        watchedSeconds++;
+        console.log(`⏱️ Просмотр: ${watchedSeconds}с из ${WATCH_THRESHOLD}с`);
+        
+        if (watchedSeconds >= WATCH_THRESHOLD) {
+          markVideoAsWatched(filename);
+          clearInterval(watchTimer);
+          watchTimer = null;
+        }
+      }
+    }, 1000);
+  }
+
+  // НОВАЯ функция отметки видео как просмотренного
+  async function markVideoAsWatched(filename) {
+    console.log('✅ Видео просмотрено:', filename);
+    
+    // Добавляем в Set
+    watchedVideosSet.add(filename);
+    
+    // Отправляем на сервер
+    const success = await window.telegramAuth.addWatchedVideo(filename, watchedSeconds);
+    
+    if (!success) {
+      // Откатываем при ошибке
+      watchedVideosSet.delete(filename);
+      console.error('❌ Не удалось сохранить прогресс просмотра');
+    } else {
+      console.log('💾 Прогресс просмотра сохранен на сервере');
+    }
   }
 
   // Функция загрузки списка видео с сервера
@@ -512,7 +641,19 @@ window.debugLogger = debugLogger;
         console.log('📺 Количество видео:', videos.length);
         
         if (videos.length > 0) {
-          shuffleVideos();
+          // Очищаем удаленные видео из прогресса пользователя
+          const existingFilenames = videos.map(v => v.filename);
+          await window.telegramAuth.cleanDeletedVideos(existingFilenames);
+          
+          // Если есть сохраненный порядок сессии - восстанавливаем его
+          if (currentSessionOrder.length > 0) {
+            console.log('📋 Восстанавливаем порядок сессии');
+            restoreSessionOrder();
+          } else {
+            // Иначе создаем новый порядок
+            shuffleUnwatchedVideos();
+          }
+          
           loadVideo();
           updateFavoritesList(); // Обновляем список избранного
         } else {
@@ -524,6 +665,39 @@ window.debugLogger = debugLogger;
     } catch (error) {
       console.error('❌ Ошибка загрузки видео:', error);
     }
+  }
+
+  // НОВАЯ функция восстановления порядка сессии
+  function restoreSessionOrder() {
+    // Проверяем, что все видео из сохраненного порядка еще существуют
+    const existingFilenames = new Set(videos.map(v => v.filename));
+    const validOrder = currentSessionOrder.filter(filename => existingFilenames.has(filename));
+    
+    if (validOrder.length === 0) {
+      console.log('⚠️ Сохраненный порядок пуст или недействителен');
+      shuffleUnwatchedVideos();
+      return;
+    }
+    
+    // Конвертируем filenames обратно в индексы
+    videoOrder = [];
+    validOrder.forEach(filename => {
+      const index = videos.findIndex(v => v.filename === filename);
+      if (index !== -1 && !watchedVideosSet.has(filename)) {
+        videoOrder.push(index);
+      }
+    });
+    
+    // Если все видео из порядка уже просмотрены - создаем новый
+    if (videoOrder.length === 0) {
+      console.log('⚠️ Все видео из сохраненного порядка уже просмотрены');
+      shuffleUnwatchedVideos();
+      return;
+    }
+    
+    currentOrderIndex = 0;
+    currentSessionOrder = validOrder;
+    console.log('✅ Порядок сессии восстановлен:', videoOrder.length);
   }
 
   // Функция обновления состояния кнопок
@@ -574,11 +748,16 @@ window.debugLogger = debugLogger;
     }
   }
 
-  // Функция плавного переключения видео
+  // ОБНОВЛЕННАЯ функция плавного переключения видео
   async function loadVideo() {
     if (videos.length === 0) {
       console.warn('⚠️ Нет видео для загрузки');
       return;
+    }
+    
+    // Проверяем, есть ли непросмотренные видео
+    if (videoOrder.length === 0 || currentOrderIndex >= videoOrder.length) {
+      shuffleUnwatchedVideos();
     }
     
     // Загружаем актуальные данные пользователя перед показом видео
@@ -588,10 +767,12 @@ window.debugLogger = debugLogger;
         userFavorites = freshUserData.favorites || [];
         userLikes = freshUserData.likes || [];
         userDislikes = freshUserData.dislikes || [];
+        watchedVideosSet = new Set(freshUserData.watchedVideos || []);
         console.log('🔄 Данные пользователя обновлены:', {
           favorites: userFavorites.length,
           likes: userLikes.length,
-          dislikes: userDislikes.length
+          dislikes: userDislikes.length,
+          watched: watchedVideosSet.size
         });
       }
     } catch (error) {
@@ -611,6 +792,9 @@ window.debugLogger = debugLogger;
       
       // Сразу обновляем состояние кнопок БЕЗ ЗАДЕРЖКИ
       updateButtonStates(videoId);
+      
+      // Останавливаем предыдущий таймер просмотра
+      resetWatchTimer();
 
       // Плавное затемнение основного видео ТОЛЬКО если меняется источник
       if (videoPlayer.src !== newSrc) {
@@ -623,6 +807,8 @@ window.debugLogger = debugLogger;
           if (currentTab === 'main') {
             videoPlayer.play().then(() => {
               console.log('✅ Видео запущено успешно');
+              // Запускаем отслеживание просмотра
+              startWatchTracking(videoId);
             }).catch(error => {
               console.error('❌ Ошибка воспроизведения видео:', error);
             });
@@ -633,34 +819,39 @@ window.debugLogger = debugLogger;
       } else {
         // Если видео то же самое, просто воспроизводим
         if (currentTab === 'main' && videoPlayer.paused) {
-          videoPlayer.play();
+          videoPlayer.play().then(() => {
+            startWatchTracking(videoId);
+          });
         }
       }
 
       // Обновление информации о видео
       videoTitle.textContent = videoData.title || 'Без названия';
       videoGenre.textContent = `${videoData.genre || 'Неизвестно'}`;
+      
+      // Batch обновление последнего видео
+      updateLastVideoBatch(videoId);
     }
   }
 
-  // Функции переключения видео
+  // ОБНОВЛЕННАЯ функция переключения на следующее видео
   function nextVideo() {
     console.log('⏭️ Следующее видео');
     currentOrderIndex++;
+    
+    // Если дошли до конца списка
     if (currentOrderIndex >= videoOrder.length) {
-      console.log('🔄 Достигнут конец списка, перемешиваем заново');
-      shuffleVideos();
+      console.log('🔄 Достигнут конец списка, создаем новый');
+      shuffleUnwatchedVideos();
     }
+    
     loadVideo();
   }
 
+  // ОБНОВЛЕННАЯ функция для свайпа назад (теперь тоже показывает новое видео)
   function previousVideo() {
-    console.log('⏮️ Предыдущее видео');
-    currentOrderIndex--;
-    if (currentOrderIndex < 0) {
-      currentOrderIndex = videoOrder.length - 1;
-    }
-    loadVideo();
+    console.log('⏮️ Свайп назад - показываем новое видео');
+    nextVideo(); // По требованию - показываем новое видео вместо предыдущего
   }
 
   // Функция показа модального окна с описанием (С ПОЛЕМ "ГОД ВЫПУСКА")
@@ -1105,6 +1296,15 @@ window.debugLogger = debugLogger;
   // Настраиваем основной video элемент
   if (videoPlayer) {
     videoPlayer.muted = false;
+    
+    // Обработчики событий видео для отслеживания паузы
+    videoPlayer.addEventListener('pause', () => {
+      console.log('⏸️ Видео на паузе');
+    });
+    
+    videoPlayer.addEventListener('play', () => {
+      console.log('▶️ Видео воспроизводится');
+    });
   }
 
   // Запускаем приложение
@@ -1125,6 +1325,7 @@ window.debugLogger = debugLogger;
         userFavorites = freshUserData.favorites || [];
         userLikes = freshUserData.likes || [];
         userDislikes = freshUserData.dislikes || [];
+        watchedVideosSet = new Set(freshUserData.watchedVideos || []);
         
         // Обновляем UI только если видео совпадает
         const currentVideoId = likeButton?.getAttribute('data-video-id');
@@ -1142,11 +1343,30 @@ window.debugLogger = debugLogger;
     } catch (error) {
       console.error('❌ Ошибка автоматической синхронизации:', error);
     }
-  }, 10000); // 30 секунд
+  }, 30000); // 30 секунд
+
+  // Обработчик для очистки при закрытии приложения
+  window.addEventListener('beforeunload', () => {
+    // Сохраняем последний прогресс
+    if (lastVideoUpdateTimer) {
+      clearTimeout(lastVideoUpdateTimer);
+      const currentVideoId = likeButton?.getAttribute('data-video-id');
+      if (currentVideoId) {
+        window.telegramAuth.updateLastVideo(currentVideoId);
+      }
+    }
+    
+    // Сохраняем порядок сессии
+    if (sessionOrderUpdateTimer) {
+      clearTimeout(sessionOrderUpdateTimer);
+      window.telegramAuth.saveSessionOrder(currentSessionOrder);
+    }
+  });
 
   console.log('🎉 Приложение полностью инициализировано!');
   console.log('📱 Используются pointer events для лучшей совместимости');
   console.log('🔄 Включена автоматическая синхронизация данных');
   console.log('⭐ Добавлена вкладка "Избранное" с улучшенной отзывчивостью');
-  console.log('📅 Версия 6.5 - интегрирована новая система авторизации');
+  console.log('📊 Добавлено отслеживание просмотра видео');
+  console.log('🎬 Версия 7.0 - интегрирована система исключения просмотренных');
 });
